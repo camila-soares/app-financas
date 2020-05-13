@@ -3,6 +3,7 @@ package com.financas.services;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.financas.enums.StatusLancamento;
+import com.financas.enums.TipoLancamento;
 import com.financas.model.entity.Lancamento;
 import com.financas.repositories.LancamentoRepository;
 import com.financas.services.exceptions.RegraNegocioException;
@@ -89,6 +91,26 @@ public class LancamentoImpl implements LancamentoService{
 		if(lancamento.getTipo() == null ) {
 			throw new RegraNegocioException("Informe um tipo de lancamento.");
 		}
+	}
+
+	@Override
+	public Optional<Lancamento> obterPorId(Long id) {
+		return repository.findById(id);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public BigDecimal obterSaldoPorUsuario(Long id) {
+		BigDecimal receitas = repository.obterSaldoPorTipoLancamentoEUsuario(id, TipoLancamento.RECEITA);
+		BigDecimal despesas = repository.obterSaldoPorTipoLancamentoEUsuario(id, TipoLancamento.DESPESA);
+		
+		if(receitas == null) {
+			receitas = BigDecimal.ZERO;
+		}
+		if(despesas == null ) {
+			despesas = BigDecimal.ZERO;
+		}
+		return receitas.subtract(despesas);
 	}
 
 }
