@@ -2,7 +2,7 @@ package com.financas.model.repositories;
 
 import java.util.Optional;
 
-import org.assertj.core.api.Assertions;
+import static org.assertj.core.api.Assertions.*;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +38,7 @@ public class UsuarioRepositoryTest {
 		boolean result = repository.existsByEmail("usuario@email.com");
 		
 		//verificacao
-		Assertions.assertThat(result).isTrue();
+		assertThat(result).isTrue();
 		
 	}
 	
@@ -52,7 +52,7 @@ public class UsuarioRepositoryTest {
 		
 		//verificacao
 
-		Assertions.assertThat(result).isFalse();
+		assertThat(result).isFalse();
 	}
 
 	@Test
@@ -64,7 +64,7 @@ public class UsuarioRepositoryTest {
 		//acao
 		Usuario usuariosalvo = repository.save(usuario);
 		//verificacao
-		Assertions.assertThat(usuariosalvo.getId()).isNotNull();
+		assertThat(usuariosalvo.getId()).isNotNull();
 	}
 	
 	@Test
@@ -75,14 +75,14 @@ public class UsuarioRepositoryTest {
 		
 		//verificacao
 		Optional<Usuario> result = repository.findByEmail("usuario@email.com");
-		Assertions.assertThat(result.isPresent()).isTrue();
+		assertThat(result.isPresent()).isTrue();
 	}
 	
 	@Test
 	public void deveRetornarVazioAoBuscarUsuarioPorEmail() {
 		//verificacao
 		Optional<Usuario> result = repository.findByEmail("usuario@email.com");
-		Assertions.assertThat(result.isPresent()).isFalse();
+		assertThat(result.isPresent()).isFalse();
 	}
 	
 	public static Usuario criarUsuario() {
