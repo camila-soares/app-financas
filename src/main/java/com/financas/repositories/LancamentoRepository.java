@@ -15,4 +15,6 @@ public interface LancamentoRepository extends JpaRepository<Lancamento, Long>{
 				   " select sum(l.valor) from Lancamento l join l.usuario u"
 				 + " where u.id = :idUsuario and l.tipo = :tipo group by u")
 	BigDecimal obterSaldoPorTipoLancamentoEUsuario(@Param("idUsuario") Long idUsuario, @Param("tipo") TipoLancamento tipo);
+
+	
 }
