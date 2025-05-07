@@ -4,6 +4,9 @@ import java.math.BigDecimal;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
+
+import com.financas.model.entity.Usuario;
+import junit.framework.TestCase;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +14,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.context.annotation.Profile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -22,15 +26,15 @@ import com.financas.repositories.LancamentoRepository;
 @RunWith(SpringRunner.class)
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = Replace.NONE)
-@ActiveProfiles("test")
-public class LancamentoRepositoryTest {
+@Profile("dev")
+public class LancamentoRepositoryTest extends TestCase {
 	
 	@Autowired
 	LancamentoRepository repository;
 	
 	@Autowired
 	TestEntityManager entityManager;
-	
+
 	@Test
 	public void deveSalvarUmLancamento() {
 		Lancamento lancamento = criarLancamento();
@@ -86,11 +90,12 @@ public class LancamentoRepositoryTest {
 	
 	public static Lancamento criarLancamento() {
 		return Lancamento.builder()
-									.ano(2020)
+									.ano(2025)
 									.mes(5)
 									.descricao("lancamentoTest")
 									.valor(BigDecimal.valueOf(10))
 									.tipo(TipoLancamento.RECEITA)
+									.usuario(Usuario.builder().id(1l).build())
 									.status(StatusLancamento.PENDENTE)
 									.build();
 	}

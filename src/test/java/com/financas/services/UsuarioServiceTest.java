@@ -8,10 +8,10 @@ import static org.mockito.Mockito.when;
 
 import java.util.Optional;
 
+import com.financas.services.impl.UsuarioServiceImpl;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
@@ -28,7 +28,7 @@ import com.financas.services.exceptions.RegraNegocioException;
 public class UsuarioServiceTest {
 
 	@SpyBean
-	UsuarioServiceImpl service;
+    UsuarioServiceImpl service;
 	
 	@MockBean
 	UsuarioRepository repository;

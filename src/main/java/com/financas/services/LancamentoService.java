@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import com.financas.enums.StatusLancamento;
 import com.financas.model.entity.Lancamento;
+import com.financas.model.entity.Usuario;
 
 public interface LancamentoService {
 	
@@ -24,4 +25,8 @@ public interface LancamentoService {
 	Optional<Lancamento> obterPorId(Long id);
 	
 	BigDecimal obterSaldoPorUsuario(Long id);
+
+	Optional<Usuario> findById(Long id);
+	
+	Optional<Lancamento> buscaPorId(Long id);
 }

@@ -2,6 +2,7 @@ package com.financas.model.entity;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import javax.persistence.Column;
 import javax.persistence.Convert;
@@ -31,7 +32,7 @@ import lombok.extern.log4j.Log4j;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "lancamento", schema = "financas")
+@Table(name = "lancamento")
 public class Lancamento {
 	
 	@Id
@@ -56,8 +57,12 @@ public class Lancamento {
 	private BigDecimal valor;
 	
 	@Column(name = "data_cadastro")
-	@Convert(converter = Jsr310JpaConverters.LocalDateTimeConverter.class)
+	@Convert(converter = Jsr310JpaConverters.LocalDateConverter.class)
 	private LocalDate dataCadastro;
+
+	@Column(name = "vencimento")
+	@Convert(converter = Jsr310JpaConverters.LocalDateConverter.class)
+	private LocalDate vencimento;
 	
 	@Column(name = "tipo")
 	@Enumerated(value = EnumType.STRING)

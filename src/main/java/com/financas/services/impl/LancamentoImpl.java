@@ -1,10 +1,13 @@
-package com.financas.services;
+package com.financas.services.impl;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import com.financas.repositories.UsuarioRepository;
+import com.financas.services.LancamentoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
@@ -15,24 +18,35 @@ import org.springframework.transaction.annotation.Transactional;
 import com.financas.enums.StatusLancamento;
 import com.financas.enums.TipoLancamento;
 import com.financas.model.entity.Lancamento;
+import com.financas.model.entity.Usuario;
 import com.financas.repositories.LancamentoRepository;
 import com.financas.services.exceptions.RegraNegocioException;
 
+import javax.swing.text.DateFormatter;
+
 @Service
-public class LancamentoImpl implements LancamentoService{
+public class LancamentoImpl implements LancamentoService {
 
 	@Autowired
 	LancamentoRepository repository;
+	@Autowired
+	UsuarioRepository usuarioRepository;
 	
-	public LancamentoImpl(LancamentoRepository repository) {
+	public LancamentoImpl(LancamentoRepository repository, UsuarioRepository usuarioRepository) {
 		this.repository = repository;
-	}
+        this.usuarioRepository = usuarioRepository;
+    }
 	
 	@Override
 	@Transactional
 	public Lancamento salvar(Lancamento lancamento) {
 		validar(lancamento);
-		lancamento.setStatus(StatusLancamento.PENDENTE);
+		if (lancamento.getTipo().equals(TipoLancamento.RECEITA)){
+			lancamento.setStatus(StatusLancamento.EFETIVADO);
+		}else {
+			lancamento.setStatus(StatusLancamento.PENDENTE);
+		}
+		lancamento.setDataCadastro(LocalDate.now());
 		return repository.save(lancamento);
 	}
 
@@ -54,7 +68,7 @@ public class LancamentoImpl implements LancamentoService{
 	@Override
     @Transactional(readOnly = true)
 	public List<Lancamento> buscar(Lancamento lancamentoFiltro) {
-		Example example = Example.of( lancamentoFiltro, ExampleMatcher.matching()
+		Example  example = Example.of( lancamentoFiltro, ExampleMatcher.matching()
 				.withIgnoreCase()
 				.withStringMatcher(StringMatcher.CONTAINING) );
 		
@@ -101,8 +115,17 @@ public class LancamentoImpl implements LancamentoService{
 	@Override
 	@Transactional(readOnly = true)
 	public BigDecimal obterSaldoPorUsuario(Long id) {
-		BigDecimal receitas = repository.obterSaldoPorTipoLancamentoEUsuario(id, TipoLancamento.RECEITA);
-		BigDecimal despesas = repository.obterSaldoPorTipoLancamentoEUsuario(id, TipoLancamento.DESPESA);
+
+		Optional<Usuario> usuario = usuarioRepository.findById(id);
+		if(!usuario.isPresent()) {
+			throw new RuntimeException("Usuario nao encontrado.");
+		}
+
+		BigDecimal receitas = repository.obterSaldoPorTipoLancamentoEUsuarioEStatus(id,
+				TipoLancamento.RECEITA,
+				StatusLancamento.EFETIVADO);
+		BigDecimal despesas = repository.obterSaldoPorTipoLancamentoEUsuarioEStatus(id,
+				TipoLancamento.DESPESA, StatusLancamento.EFETIVADO);
 		
 		if(receitas == null) {
 			receitas = BigDecimal.ZERO;
@@ -111,6 +134,18 @@ public class LancamentoImpl implements LancamentoService{
 			despesas = BigDecimal.ZERO;
 		}
 		return receitas.subtract(despesas);
+	}
+
+	@Override
+	public Optional<Usuario> findById(Long id) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Optional<Lancamento> buscaPorId(Long id) {
+		// TODO Auto-generated method stub
+		return repository.findById(id);
 	}
 
 }

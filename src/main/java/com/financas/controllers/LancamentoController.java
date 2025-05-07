@@ -1,5 +1,9 @@
 package com.financas.controllers;
 
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -8,6 +12,7 @@ import javax.xml.ws.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,6 +35,8 @@ import com.financas.services.exceptions.RegraNegocioException;
 
 import lombok.RequiredArgsConstructor;
 
+
+@CrossOrigin(origins= "http://localhost:3000")
 @RestController
 @RequestMapping("/api/lancamentos")
 @RequiredArgsConstructor
@@ -47,12 +54,14 @@ public class LancamentoController {
 	@RequestParam(value = "descricao", required = false)String descricao,
 	@RequestParam(value = "mes", required = false)Integer mes, 
 	@RequestParam(value = "ano", required = false) Integer ano,
+	@RequestParam(value = "tipo",required = false) TipoLancamento tipo,
 	@RequestParam("usuario") Long idusuario) {
 		
 		Lancamento lancamentoFiltro = new Lancamento();
 		lancamentoFiltro.setDescricao(descricao);
 		lancamentoFiltro.setMes(mes);
 		lancamentoFiltro.setAno(ano);
+		lancamentoFiltro.setTipo(tipo);
 		
 		Optional<Usuario> usuario = usuarioService.obterPorId(idusuario);
 		if(!usuario.isPresent()) {
@@ -78,7 +87,6 @@ public class LancamentoController {
 		return ResponseEntity.ok(entity);
 		}catch (RegraNegocioException e) {
 			return ResponseEntity.badRequest().body(e.getMessage());
-			// TODO: handle exception
 		}
 	}).orElseGet(() -> new ResponseEntity("Lancamento nao encontrado na base de dados.", HttpStatus.BAD_REQUEST));
 			
@@ -95,6 +103,14 @@ public class LancamentoController {
 			return ResponseEntity.badRequest()
 					.body(e.getMessage());
 		}
+	}
+	
+
+	@GetMapping("{id}")
+	public ResponseEntity findById(@PathVariable("id") Long id) {
+		return service.buscaPorId(id)
+				.map( lancamento -> new ResponseEntity<LancamentoDTO>(converter(lancamento), HttpStatus.OK))
+				.orElseGet( () -> new ResponseEntity(HttpStatus.OK));
 	}
 	
 	@PutMapping("{id}")
@@ -122,6 +138,23 @@ public class LancamentoController {
 		new ResponseEntity("Lancamento nao encontrado na bade de dados.", HttpStatus.BAD_REQUEST));
 	}
 	
+	
+	
+	private LancamentoDTO converter(Lancamento lancamento) {
+	return LancamentoDTO.builder()
+			.id(lancamento.getId())
+			.descricao(lancamento.getDescricao())
+			.valor(lancamento.getValor())
+			.vencimento(lancamento.getVencimento())
+			.mes(lancamento.getMes())
+			.ano(lancamento.getAno())
+			.status(lancamento.getStatus().name())
+			.tipo(lancamento.getTipo().name())
+			.usuario(lancamento.getUsuario().getId())
+			.build();
+		
+	}
+	
 	private Lancamento converter (LancamentoDTO dto) {
 		Lancamento lancamento = new Lancamento();
 		lancamento.setId(dto.getId());
@@ -129,6 +162,7 @@ public class LancamentoController {
 		lancamento.setAno(dto.getAno());
 		lancamento.setMes(dto.getMes());
 		lancamento.setValor(dto.getValor());
+		lancamento.setVencimento(dto.getVencimento());
 		
 		Usuario usuario = usuarioService
 		.obterPorId(dto.getUsuario())

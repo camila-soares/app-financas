@@ -5,6 +5,8 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import com.financas.services.impl.LancamentoImpl;
 import org.springframework.data.domain.Example;
 
 import java.math.BigDecimal;
@@ -15,11 +17,9 @@ import java.util.Optional;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
-import org.springframework.data.repository.support.Repositories;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -31,7 +31,7 @@ import com.financas.repositories.LancamentoRepository;
 import com.financas.services.exceptions.RegraNegocioException;
 
 @RunWith(SpringRunner.class)
-@ActiveProfiles("test")
+@ActiveProfiles("dev")
 public class LancamentoServiceTest {
 	
 	@SpyBean

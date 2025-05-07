@@ -1,6 +1,8 @@
 package com.financas.controller;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -10,7 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -29,7 +33,7 @@ import com.financas.services.exceptions.ErroAutenticacao;
 import com.financas.services.exceptions.RegraNegocioException;
 
 @RunWith(SpringRunner.class)
-@ActiveProfiles("test")
+@Profile("dev")
 @WebMvcTest(controllers = UsuarioController.class)
 @AutoConfigureMockMvc
 public class UsuarioControllerTest {
@@ -76,6 +80,7 @@ public class UsuarioControllerTest {
 		
 	}
 	
+	 @WithMockUser(username="ADMIN")
 	@Test
 	public void deveRetornarBadRequestAoObterErroDeAutenticacao() throws Exception {
 		//cenario
@@ -164,5 +169,17 @@ public class UsuarioControllerTest {
 		.andExpect(MockMvcResultMatchers.status().isBadRequest() );
 	}
 	
+	@Test
+	public void deveRetornarUmaListaDeUsuarios() throws Exception {
+		
+		MockHttpServletRequestBuilder request = MockMvcRequestBuilders
+				.get(API)
+				.accept(JSON)
+				.contentType(JSON);
+		
+		mvc.perform(request)
+		.andExpect(MockMvcResultMatchers.status().isOk())
+		.andExpect(jsonPath( "$.id", is( 0 ) ));
+	}
 
 }
